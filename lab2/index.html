@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Letter</title>
+</head>
+<body>
+
+<div id="container"></div>
+
+<script>
+  var container = document.getElementById("container");
+
+  function generateRandomLetter() {
+    var randomNumber = Math.floor(Math.random() * 26); 
+    var randomLetter = String.fromCharCode(97 + randomNumber); 
+    return randomLetter;
+  }
+
+  function generateRandomNumber() {
+    return Math.floor(Math.random() * 3) + 1;
+  }
+
+  var numLetters = generateRandomNumber();
+  var letters = '';
+  for (var i = 0; i < numLetters; i++) {
+    letters += generateRandomLetter();
+  }
+  container.textContent = letters;
+
+  document.addEventListener("keydown", function(event) {
+    var pressedLetter = event.key.toLowerCase();
+    if (pressedLetter === letters.charAt(0)) {
+      letters = letters.substring(1);
+      container.textContent = letters;
+      var newLetters = '';
+      numLetters = generateRandomNumber();
+      for (var i = 0; i < numLetters; i++) {
+        newLetters += generateRandomLetter();
+      }
+      letters += newLetters;
+      container.textContent = letters;
+    }
+  });
+</script>
+
+</body>
+</html>
