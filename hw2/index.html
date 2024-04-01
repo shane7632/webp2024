@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - A Pen by shane</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title></title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+  th {
+    background-color: green;
+    color: white; 
+  }
+</style>
+</head>
+<body>
+
+<h1>景點觀光展覽資訊</h1>
+
+<input type="text" id="searchInput" placeholder="輸入名稱搜尋" onchange="searchData()">
+
+<table id="csie" class="table table-striped table-hover">
+  <tr>
+    <th>名稱</th>
+    <th>地點</th>
+    <th>票價</th>
+  </tr>
+</table>
+
+<div>
+  <button onclick="prevPage()">上一頁</button>
+  <span id="currentPage">1</span>/<span id="totalPages">1</span>
+  <button onclick="nextPage()">下一頁</button>
+</div>
+
+<script>
+var openUrl="https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=6";
+var xhr=new XMLHttpRequest();
+xhr.open('GET',openUrl,true);
+xhr.send();
+xhr.onreadystatechange=function(){
+  if(this.readyState==4&&this.status==200){
+    dataset=JSON.parse(this.responseText);
+    addNewData(dataset);
+    updatePagination();
+  }
+};
+
+var currentPage = 1;
+var itemsPerPage = 10;
+var filteredData = [];
+
+function addNewData(dataset){
+  var myTable=document.getElementById("csie");
+  filteredData = dataset;
+  renderPage(currentPage);
+}
+
+function renderPage(page) {
+  var myTable=document.getElementById("csie");
+  var startIndex = (page - 1) * itemsPerPage;
+  var endIndex = startIndex + itemsPerPage;
+  myTable.innerHTML = "<tr><th>名稱</th><th>地點</th><th>票價</th></tr>";
+  for (var i = startIndex; i < endIndex && i < filteredData.length; i++) {
+    var data = filteredData[i];
+    var row = myTable.insertRow(-1);
+    row.insertCell(0).innerHTML = data['title'];
+    row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
+    row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
+  }
+}
+
+function updatePagination() {
+  var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  document.getElementById("currentPage").textContent = currentPage;//
+  document.getElementById("totalPages").textContent = totalPages;
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage(currentPage);
+    updatePagination();
+  }
+}
+
+function nextPage() {
+  var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage(currentPage);
+    updatePagination();
+  }
+}
+
+function searchData() {
+  var searchInput = document.getElementById("searchInput").value.toLowerCase();
+  filteredData = dataset.filter(function(data) {
+    return data['title'].toLowerCase().includes(searchInput);
+  });
+  currentPage = 1;
+  renderPage(currentPage);
+  updatePagination();
+}
+</script>
+
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
