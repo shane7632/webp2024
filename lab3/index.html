@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery</title>
+  <style>
+    .gallery {
+      --g: 6px; /* the gap */
+      display: grid;
+      width: 1200px; /* the size */
+      aspect-ratio: 1;
+      grid: auto-flow 1fr/repeat(3,1fr);
+      gap: var(--g);
+    }
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale();
+      cursor: pointer;
+      transition: .5s
+    }
+    .gallery img:hover {
+      filter: grayscale(0);
+    }
+    .gallery img:nth-child(2) {
+      grid-area: 1/2/span 2/span 2;
+      clip-path: polygon(0 0,100% 0,100% 100%,calc(50% + var(--g)/4) 100%,0 calc(50% - var(--g)/4))
+    }
+    .gallery img:nth-child(3) {
+      grid-area: 2/1/span 2/span 2;
+      clip-path: polygon(0 0,calc(50% - var(--g)/4) 0,100% calc(50% + var(--g)/4),100% 100%,0 100%);
+    }
+  </style>
+</head>
+<body> 
+  <button onclick="getImages()">Get IMG</button> 
+  <div id='gallery' class="gallery"></div> 
+  <script>
+    var apiKey = 'ca370d51a054836007519a00ff4ce59e';
+    var perPage = 10;
+
+    function getImages() {
+      for (let i = 1; i <= 10; i++) {
+        getImg(i);
+      }
+    }
+
+    function getImg(page) {
+      var imglistUrl = `https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=${apiKey}&per_page=${perPage}&page=${page}&format=json&nojsoncallback=1`;
+
+      fetch(imglistUrl)
+        .then(response => response.json())
+        .then(data => addNewImages(data.photos.photo))
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function addNewImages(dataset) {
+      var gallery = document.getElementById("gallery");
+      dataset.forEach(function(item) {
+        var img = document.createElement("img");
+        getImageUrl(item.id)
+          .then(imgSrc => {
+            img.setAttribute("src", imgSrc);
+            gallery.appendChild(img);
+          })
+          .catch(error => console.error('Error fetching image URL:', error));
+      });
+    }
+
+    function getImageUrl(photoId) {
+      var imgUrl = `https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${photoId}&format=json&nojsoncallback=1`;
+      return fetch(imgUrl)
+        .then(response => response.json())
+        .then(data => data.sizes.size[data.sizes.size.length - 1].source)
+        .catch(error => console.error('Error fetching image URL:', error));
+    }
+  </script>
+</body> 
+</html>
